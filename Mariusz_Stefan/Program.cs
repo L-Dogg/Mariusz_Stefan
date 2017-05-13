@@ -226,7 +226,7 @@ namespace Mariusz_Stefan
 				SendMessage(message.Channel, Wyjasnij(arg));
 				return;
 			}
-			if (possibleCommand == ".img" || possibleCommand == "i")
+			if (possibleCommand == ".img" || possibleCommand == ".i")
 			{
 				var arg = message.Content.Substring(possibleCommand.Length);
 				SendMessage(message.Channel, Image(arg));
