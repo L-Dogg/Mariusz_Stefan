@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Resources;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -71,9 +72,11 @@ namespace Mariusz_Stefan
 
 		private void InitDictionaries()
 		{
+			//_channelWhitelist.Add("tts", true);
+			//_channelWhitelist.Add("politbiuro", true);
+			//_channelWhitelist.Add("linki", true);
+			//_channelWhitelist.Add("luzna_jazda", true);
 			_channelWhitelist.Add("tts", true);
-			_channelWhitelist.Add("politbiuro", true);
-			_channelWhitelist.Add("linki", true);
 
 			_zeroArgumentCommands.Add(".help", Help);
 			_zeroArgumentCommands.Add(".gdzie", Gdzie);
@@ -114,6 +117,7 @@ namespace Mariusz_Stefan
 			_slapCommands.Add(".slap", Slap);
 
 		}
+
 		private static void LoadKeys(string pathToJson)
 		{
 			var json = "";
@@ -181,6 +185,12 @@ namespace Mariusz_Stefan
 			var possibleCommand = message.Content.Contains(" ") ? 
 				message.Content.Substring(0, message.Content.IndexOf(' ')).Trim() : message.Content;
 			possibleCommand = possibleCommand.ToLower();
+
+			if (possibleCommand == ".hunger")
+			{
+				FetchAvatars(message.Channel);
+				return;
+			}
 
 			#region Normal Commands
 			if (_zeroArgumentCommands.ContainsKey(possibleCommand))
@@ -482,6 +492,23 @@ namespace Mariusz_Stefan
 		private string Image(string query)
 		{
 			return GoogleSearchQuery(query, CseResource.ListRequest.SearchTypeEnum.Image).Link;
+		}
+		#endregion
+
+		#region HungerGames
+
+		private void FetchAvatars(IChannel msgChannel)
+		{
+			var usersList = msgChannel.GetUsersAsync().ToArray().Result[0];//.Where(u => u.Status != UserStatus.Offline);
+			using (var client = new WebClient())
+			{
+				foreach (var user in usersList)
+				{
+					if (!string.IsNullOrEmpty(user.AvatarId))
+						client.DownloadFile(new Uri($"https://cdn.discordapp.com/avatars/{user.Id}/{user.AvatarId}.jpg"),
+							$@"C:\Users\Szymek\Desktop\obs_rane\{user.Username}.png");
+				}
+			}
 		}
 		#endregion
 	}
